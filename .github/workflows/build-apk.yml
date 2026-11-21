@@ -1,4 +1,4 @@
-name: Gerar APK Quero Diária
+name: Gerar App Oficial Quero Diária
 
 on:
   workflow_dispatch:
@@ -36,31 +36,31 @@ jobs:
           npm install --no-save sharp @capacitor/assets
           npx cap add android
 
-      - name: Gerar e aplicar novo ícone QD (#0A2240, #F26500, #FFFFFF)
+      - name: Gerar e aplicar ícone QD Azul-Marinho
         run: |
           cat << 'EOF' > generate-icon.js
           const sharp = require('sharp');
           const fullIconSvg = `
           <svg width="1024" height="1024" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <rect width="512" height="512" fill="#0A2240" />
-            <path fill="#FFFFFF" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
-            <line x1="196" y1="274" x2="254" y2="366" stroke="#0A2240" stroke-width="58" stroke-linecap="round" />
-            <line x1="194" y1="272" x2="254" y2="366" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" />
-            <path fill="#F26500" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
+            <rect width="512" height="512" fill="#09172e" />
+            <path fill="#ffffff" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
+            <line x1="196" y1="274" x2="254" y2="366" stroke="#09172e" stroke-width="58" stroke-linecap="round" />
+            <line x1="194" y1="272" x2="254" y2="366" stroke="#ffffff" stroke-width="44" stroke-linecap="round" />
+            <path fill="#f35b04" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
           </svg>`;
 
           const fgSvg = `
           <svg width="1024" height="1024" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
             <g transform="translate(256, 256) scale(0.65) translate(-256, -256)">
-              <path fill="#FFFFFF" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
-              <line x1="196" y1="274" x2="254" y2="366" stroke="#0A2240" stroke-width="58" stroke-linecap="round" />
-              <line x1="194" y1="272" x2="254" y2="366" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" />
-              <path fill="#F26500" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
+              <path fill="#ffffff" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
+              <line x1="196" y1="274" x2="254" y2="366" stroke="#09172e" stroke-width="58" stroke-linecap="round" />
+              <line x1="194" y1="272" x2="254" y2="366" stroke="#ffffff" stroke-width="44" stroke-linecap="round" />
+              <path fill="#f35b04" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
             </g>
           </svg>`;
 
-          const bgSvg = `<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><rect width="1024" height="1024" fill="#0A2240"/></svg>`;
-          const splashSvg = `<svg width="2732" height="2732" xmlns="http://www.w3.org/2000/svg"><rect width="2732" height="2732" fill="#0A2240"/></svg>`;
+          const bgSvg = `<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><rect width="1024" height="1024" fill="#09172e"/></svg>`;
+          const splashSvg = `<svg width="2732" height="2732" xmlns="http://www.w3.org/2000/svg"><rect width="2732" height="2732" fill="#09172e"/></svg>`;
 
           (async () => {
             await sharp(Buffer.from(fullIconSvg)).png().toFile('assets/icon-only.png');
@@ -71,9 +71,9 @@ jobs:
           })();
           EOF
           node generate-icon.js
-          npx capacitor-assets generate --android --iconBackgroundColor '#0A2240' --iconBackgroundColorDark '#0A2240' --splashBackgroundColor '#0A2240' --splashBackgroundColorDark '#0A2240'
+          npx capacitor-assets generate --android --iconBackgroundColor '#09172e' --iconBackgroundColorDark '#09172e' --splashBackgroundColor '#09172e' --splashBackgroundColorDark '#09172e'
 
-      - name: Configurar notificações e cores oficiais na abertura
+      - name: Configurar notificações e tema azul-marinho
         run: |
           if [ -f "google-services.json" ]; then
             cp google-services.json android/app/google-services.json
@@ -82,31 +82,69 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
               <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-                  <item name="colorPrimary">#0A2240</item>
-                  <item name="colorPrimaryDark">#0A2240</item>
-                  <item name="colorAccent">#F26500</item>
-                  <item name="android:statusBarColor">#0A2240</item>
-                  <item name="android:navigationBarColor">#FFFFFF</item>
-                  <item name="android:windowBackground">#0A2240</item>
+                  <item name="colorPrimary">#0f294d</item>
+                  <item name="colorPrimaryDark">#09172e</item>
+                  <item name="colorAccent">#f35b04</item>
+                  <item name="android:statusBarColor">#09172e</item>
+                  <item name="android:navigationBarColor">#ffffff</item>
+                  <item name="android:windowBackground">#09172e</item>
               </style>
               <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-                  <item name="android:background">#0A2240</item>
-                  <item name="android:windowBackground">#0A2240</item>
-                  <item name="windowSplashScreenBackground">#0A2240</item>
+                  <item name="android:background">#09172e</item>
+                  <item name="android:windowBackground">#09172e</item>
+                  <item name="windowSplashScreenBackground">#09172e</item>
                   <item name="postSplashScreenTheme">@style/AppTheme</item>
               </style>
           </resources>
           EOF
           npx cap sync android
 
-      - name: Compilar APK Android
+      - name: Configurar assinatura oficial (Release)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > android/app/quero-diaria.jks
+          cat << EOF >> android/app/build.gradle
+
+          android {
+              defaultConfig {
+                  versionCode ${GITHUB_RUN_NUMBER}
+                  versionName "1.0.${GITHUB_RUN_NUMBER}"
+              }
+              signingConfigs {
+                  release {
+                      storeFile file("quero-diaria.jks")
+                      storePassword System.getenv("KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("KEY_ALIAS")
+                      keyPassword System.getenv("KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+
+      - name: Compilar APK e AAB Oficiais
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease bundleRelease
 
-      - name: Disponibilizar APK para download
+      - name: Disponibilizar APK Oficial (WhatsApp / Direto)
         uses: actions/upload-artifact@v4
         with:
-          name: QueroDiaria-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: QueroDiaria-APK-Oficial
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Disponibilizar AAB Oficial (Google Play Store)
+        uses: actions/upload-artifact@v4
+        with:
+          name: QueroDiaria-PlayStore-AAB
+          path: android/app/build/outputs/bundle/release/app-release.aab
