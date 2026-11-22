@@ -1060,7 +1060,7 @@
           <span class="city-txt" id="headerCityLabel">Todas cidades</span>
           <svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <button class="icon-btn" onclick="openModal('alertsModal')" title="Notificações">
+        <button class="icon-btn" onclick="openAlertsModal()" title="Notificações">
           <svg class="ico" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </button>
       </div>
@@ -1451,12 +1451,12 @@
           <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Ative as notificações para saber quando surgirem novas diárias na sua cidade.</p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Escolha a cidade para receber avisos quando surgirem novas diárias:</p>
       <div class="form-group">
-        <label>Cidade de interesse</label>
-        <select id="alertCitySelect"></select>
+        <label>Cidade de interesse: <strong id="alertCitySelectedLabel" style="color:var(--navy);">Todas as cidades</strong></label>
+        <div class="city-list-grid" id="alertCityGrid" style="max-height:260px; overflow-y:auto; padding:2px 0;"></div>
       </div>
-      <button class="btn btn-primary btn-full" onclick="activatePushAlerts()">
+      <button class="btn btn-primary btn-full" id="btnActivatePush" onclick="activatePushAlerts()">
         <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Ativar Notificações no Celular
       </button>
@@ -1809,6 +1809,9 @@
       "matheusmatiasfds13@gmail.com"
     ];
 
+    // Disparador de Notificações Push (Google Apps Script)
+    const PUSH_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbztS9IUz17yfWtBu30moAAKpnBJYfOGSDnWiUdQsWXh2oTZK8JH8UwzE6OGSFlKGnrqtA/exec";
+
     // Biblioteca de Ícones Minimalistas SVG
     const SVG = {
       grid: `<svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
@@ -2141,6 +2144,9 @@
     let publishType = "vaga";
     let selectedCityFilter = "";
     let selectedCategoryFilter = "Todas";
+    let selectedAlertCity = localStorage.getItem("qd_alert_city") || "Todas";
+    let latestFcmToken = localStorage.getItem("qd_fcm_token") || "";
+    let pushListenersReady = false;
     let signupAccountType = "pessoa";
     let activeAdminTab = "reports";
 
@@ -2620,11 +2626,11 @@
     // 6. CIDADES E CHIPS DE CATEGORIAS
     // =========================================================
     function initStaticControls() {
-      const citySelectIds = ["jobCity", "signupCity", "editCitySelect", "alertCitySelect"];
+      const citySelectIds = ["jobCity", "signupCity", "editCitySelect"];
       citySelectIds.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
-        let opts = id === "alertCitySelect" ? `<option value="Todas">Todas as cidades da região</option>` : "";
+        let opts = "";
         REGIONAL_CITIES.forEach(c => {
           opts += `<option value="${escapeHtml(c)}">${escapeHtml(c)} - SP</option>`;
         });
@@ -2638,6 +2644,7 @@
 
       renderCategoryChips();
       renderCityModalGrid();
+      renderAlertCityGrid();
     }
 
     function renderCategoryChips() {
@@ -3022,6 +3029,14 @@
             authorUid: currentUser.uid,
             whatsapp: currentUserPrivate.whatsapp
           });
+          if (publishType === "vaga") {
+            triggerPushNotification({
+              city,
+              title,
+              pay: payFormatted,
+              authorUid: currentUser.uid
+            });
+          }
           showToast(publishType === "vaga" ? "Vaga publicada!" : "Perfil profissional publicado!", "success");
         }
 
@@ -3876,32 +3891,161 @@
     // =========================================================
     // 12. NOTIFICAÇÕES PUSH (CAPACITOR ANDROID)
     // =========================================================
-    async function activatePushAlerts() {
-      const city = document.getElementById("alertCitySelect").value;
-      localStorage.setItem("qd_alert_city", city);
+    function getPushPlugin() {
+      if (!window.Capacitor) return null;
+      return (window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications)
+        || (window.Capacitor.registerPlugin && window.Capacitor.registerPlugin("PushNotifications"))
+        || null;
+    }
+
+    function openAlertsModal() {
+      renderAlertCityGrid();
+      openModal("alertsModal");
+    }
+
+    function renderAlertCityGrid() {
+      const grid = document.getElementById("alertCityGrid");
+      const label = document.getElementById("alertCitySelectedLabel");
+      if (label) {
+        label.textContent = selectedAlertCity === "Todas" ? "Todas as cidades" : selectedAlertCity;
+      }
+      if (!grid) return;
+      let html = `<button type="button" class="city-opt-btn ${selectedAlertCity === "Todas" ? "active" : ""}" style="grid-column:1/-1;" onclick="selectAlertCity('Todas')">${SVG.globe}<span>Todas as 15 cidades da região</span></button>`;
+      REGIONAL_CITIES.forEach(c => {
+        const active = selectedAlertCity === c ? "active" : "";
+        html += `<button type="button" class="city-opt-btn ${active}" onclick="selectAlertCity('${escapeHtml(c)}')">${SVG.pin}<span>${escapeHtml(c)}</span></button>`;
+      });
+      grid.innerHTML = html;
+    }
+
+    function selectAlertCity(city) {
+      selectedAlertCity = city || "Todas";
+      renderAlertCityGrid();
+    }
+
+    async function savePushPreferencesToFirestore(tokenVal) {
+      if (!currentUser) return;
+      const tokenToSave = tokenVal || latestFcmToken;
+      const updateData = { alertCity: selectedAlertCity || "Todas" };
+      if (tokenToSave) updateData.fcmToken = tokenToSave;
       try {
-        const Push = window.Capacitor && (window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications || window.Capacitor.registerPlugin && window.Capacitor.registerPlugin("PushNotifications"));
+        await db.collection("usuarios_privados").doc(currentUser.uid).set(updateData, { merge: true });
+        if (currentUserPrivate) {
+          currentUserPrivate.alertCity = updateData.alertCity;
+          if (updateData.fcmToken) currentUserPrivate.fcmToken = updateData.fcmToken;
+        }
+      } catch (e) {}
+    }
+
+    async function setupPushListenersOnce() {
+      if (pushListenersReady) return;
+      const Push = getPushPlugin();
+      if (!Push) return;
+      pushListenersReady = true;
+
+      try {
+        if (Push.createChannel) {
+          await Push.createChannel({
+            id: "vagas_channel",
+            name: "Novas Diárias",
+            description: "Alertas de novas vagas na sua região",
+            importance: 5,
+            visibility: 1,
+            sound: "default",
+            vibration: true
+          });
+        }
+      } catch (e) {}
+
+      try {
+        Push.addListener("registration", async (token) => {
+          if (token && token.value) {
+            latestFcmToken = token.value;
+            localStorage.setItem("qd_fcm_token", token.value);
+            await savePushPreferencesToFirestore(token.value);
+          }
+        });
+
+        Push.addListener("pushNotificationReceived", (notification) => {
+          const title = (notification && notification.title) || "Nova diária!";
+          const body = (notification && notification.body) || "";
+          showToast(body ? `${title} — ${body}` : title, "success");
+        });
+      } catch (e) {}
+    }
+
+    async function syncPushIfAlreadyGranted() {
+      const Push = getPushPlugin();
+      if (!Push) return;
+      await setupPushListenersOnce();
+      try {
+        const perm = await Push.checkPermissions();
+        if (perm && perm.receive === "granted") {
+          await Push.register();
+        }
+      } catch (e) {}
+    }
+
+    function triggerPushNotification(jobData) {
+      if (!PUSH_WEBHOOK_URL) return;
+      try {
+        fetch(PUSH_WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            city: jobData.city || "",
+            title: jobData.title || "Nova vaga disponível",
+            pay: jobData.pay || "",
+            authorUid: jobData.authorUid || ""
+          })
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    async function activatePushAlerts() {
+      const city = selectedAlertCity || "Todas";
+      localStorage.setItem("qd_alert_city", city);
+      const cityLabel = city === "Todas" ? "Todas as cidades" : city;
+
+      const btn = document.getElementById("btnActivatePush");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Ativando...";
+      }
+
+      try {
+        await savePushPreferencesToFirestore(latestFcmToken);
+        const Push = getPushPlugin();
         if (Push) {
+          await setupPushListenersOnce();
           let perm = await Push.checkPermissions();
           if (perm.receive !== "granted") perm = await Push.requestPermissions();
           if (perm.receive === "granted") {
             await Push.register();
-            Push.addListener("registration", async (token) => {
-              if (currentUser && token && token.value) {
-                await db.collection("usuarios_privados").doc(currentUser.uid).set({
-                  fcmToken: token.value,
-                  alertCity: city
-                }, { merge: true });
-              }
-            });
-            showToast(`Notificações ativadas para: ${city}!`, "success");
+            if (!currentUser) {
+              showToast("Notificações liberadas! Entre na sua conta para começar a receber.", "success");
+            } else {
+              showToast(`Notificações ativadas para: ${cityLabel}!`, "success");
+            }
             closeModal("alertsModal");
+            return;
+          } else {
+            showToast("Permissão de notificação negada no celular.", "error");
             return;
           }
         }
-      } catch (e) {}
-      showToast(`Preferência salva para: ${city}.`, "success");
-      closeModal("alertsModal");
+        showToast(`Preferência salva para: ${cityLabel}.`, "success");
+        closeModal("alertsModal");
+      } catch (e) {
+        showToast(`Preferência salva para: ${cityLabel}.`, "success");
+        closeModal("alertsModal");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Ativar Notificações no Celular`;
+        }
+      }
     }
 
     // =========================================================
@@ -3978,6 +4122,15 @@
           }
 
           currentUserPrivate = privSnap.exists ? privSnap.data() : { email: user.email, whatsapp: "" };
+          if (currentUserPrivate.alertCity) {
+            selectedAlertCity = currentUserPrivate.alertCity;
+            localStorage.setItem("qd_alert_city", selectedAlertCity);
+            renderAlertCityGrid();
+          }
+          if (latestFcmToken && currentUserPrivate.fcmToken !== latestFcmToken) {
+            savePushPreferencesToFirestore(latestFcmToken);
+          }
+          syncPushIfAlreadyGranted();
         } catch (e) {}
       } else {
         currentUserProfile = null;
