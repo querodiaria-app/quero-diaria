@@ -37,6 +37,46 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    input, textarea, [contenteditable="true"] {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
+
+    .pass-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .pass-wrap input {
+      width: 100%;
+      padding-right: 44px;
+    }
+    .pass-eye-btn {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .pass-eye-btn:active {
+      color: var(--navy);
+      background: #f1f5f9;
     }
 
     html, body {
@@ -1339,7 +1379,12 @@
         </div>
         <div class="form-group">
           <label>Senha *</label>
-          <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" />
+          <div class="pass-wrap">
+            <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" />
+            <button type="button" class="pass-eye-btn" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Mostrar ou ocultar senha">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <div style="text-align:right; margin:-4px 0 14px;">
           <button type="button" class="link-btn" style="font-size:12.5px;" onclick="doPasswordReset()">Esqueci minha senha</button>
@@ -1406,7 +1451,12 @@
 
         <div class="form-group">
           <label>Senha (mínimo 6 caracteres) *</label>
-          <input type="password" id="signupPassword" placeholder="Crie uma senha" autocomplete="new-password" />
+          <div class="pass-wrap">
+            <input type="password" id="signupPassword" placeholder="Crie uma senha" autocomplete="new-password" />
+            <button type="button" class="pass-eye-btn" onclick="togglePasswordVisibility('signupPassword', this)" aria-label="Mostrar ou ocultar senha">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
 
         <label class="check-row">
@@ -1773,7 +1823,12 @@
       </div>
       <div class="form-group">
         <label>Digite sua senha atual para confirmar *</label>
-        <input type="password" id="deleteConfirmPassword" placeholder="Sua senha" />
+        <div class="pass-wrap">
+          <input type="password" id="deleteConfirmPassword" placeholder="Sua senha" />
+          <button type="button" class="pass-eye-btn" onclick="togglePasswordVisibility('deleteConfirmPassword', this)" aria-label="Mostrar ou ocultar senha">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-outline" onclick="closeModal('deleteAccountModal')">Cancelar</button>
@@ -2684,6 +2739,16 @@
     // =========================================================
     // 7. AUTENTICAÇÃO, CADASTRO E LGPD
     // =========================================================
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.innerHTML = show
+        ? '<svg class="ico" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    }
+
     function openAuthModal(mode = "login") {
       setAuthMode(mode);
       openModal("authModal");
@@ -3032,6 +3097,7 @@
           if (publishType === "vaga") {
             triggerPushNotification({
               city,
+              neighborhood: neighborhood || "",
               title,
               pay: payFormatted,
               authorUid: currentUser.uid
@@ -3971,6 +4037,11 @@
           const body = (notification && notification.body) || "";
           showToast(body ? `${title} — ${body}` : title, "success");
         });
+
+        Push.addListener("pushNotificationActionPerformed", () => {
+          setFeedMode("vaga");
+          switchTab("inicio");
+        });
       } catch (e) {}
     }
 
@@ -3995,6 +4066,7 @@
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
             city: jobData.city || "",
+            neighborhood: jobData.neighborhood || "",
             title: jobData.title || "Nova vaga disponível",
             pay: jobData.pay || "",
             authorUid: jobData.authorUid || ""
