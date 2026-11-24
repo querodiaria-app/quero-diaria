@@ -36,10 +36,12 @@ jobs:
           npm install --no-save sharp @capacitor/assets
           npx cap add android
 
-      - name: Gerar e aplicar ícone QD Azul-Marinho
+      - name: Gerar ícones QD (App + Notificação Android)
         run: |
           cat << 'EOF' > generate-icon.js
+          const fs = require('fs');
           const sharp = require('sharp');
+
           const fullIconSvg = `
           <svg width="1024" height="1024" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
             <rect width="512" height="512" fill="#09172e" />
@@ -59,6 +61,15 @@ jobs:
             </g>
           </svg>`;
 
+          const notifSvg = `
+          <svg width="256" height="256" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(256, 256) scale(1.08) translate(-256, -256)">
+              <path fill="#ffffff" fill-rule="evenodd" d="M 168 136 C 224 136 262 182 262 246 C 262 310 224 356 168 356 C 112 356 74 310 74 246 C 74 182 112 136 168 136 Z M 168 184 C 138 184 120 208 120 246 C 120 284 138 308 168 308 C 198 308 216 284 216 246 C 216 208 198 184 168 184 Z" />
+              <line x1="186" y1="274" x2="246" y2="366" stroke="#ffffff" stroke-width="44" stroke-linecap="round" />
+              <path fill="#ffffff" fill-rule="evenodd" d="M 284 164 C 284 146 296 136 314 136 H 348 C 406 136 444 180 444 246 C 444 312 406 356 348 356 H 314 C 296 356 284 346 284 328 Z M 328 184 V 308 H 348 C 380 308 398 286 398 246 C 398 206 380 184 348 184 Z" />
+            </g>
+          </svg>`;
+
           const bgSvg = `<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><rect width="1024" height="1024" fill="#09172e"/></svg>`;
           const splashSvg = `<svg width="2732" height="2732" xmlns="http://www.w3.org/2000/svg"><rect width="2732" height="2732" fill="#09172e"/></svg>`;
 
@@ -68,16 +79,31 @@ jobs:
             await sharp(Buffer.from(bgSvg)).png().toFile('assets/icon-background.png');
             await sharp(Buffer.from(splashSvg)).png().toFile('assets/splash.png');
             await sharp(Buffer.from(splashSvg)).png().toFile('assets/splash-dark.png');
+
+            const densities = [
+              ['drawable-mdpi', 24],
+              ['drawable-hdpi', 36],
+              ['drawable-xhdpi', 48],
+              ['drawable-xxhdpi', 72],
+              ['drawable-xxxhdpi', 96],
+              ['drawable', 96]
+            ];
+            for (const [folder, size] of densities) {
+              const dir = `android/app/src/main/res/${folder}`;
+              fs.mkdirSync(dir, { recursive: true });
+              await sharp(Buffer.from(notifSvg)).resize(size, size).png().toFile(`${dir}/ic_stat_qd.png`);
+            }
           })();
           EOF
           node generate-icon.js
           npx capacitor-assets generate --android --iconBackgroundColor '#09172e' --iconBackgroundColorDark '#09172e' --splashBackgroundColor '#09172e' --splashBackgroundColorDark '#09172e'
 
-      - name: Configurar notificações e tema azul-marinho
+      - name: Configurar notificações e tema corrigido
         run: |
           if [ -f "google-services.json" ]; then
             cp google-services.json android/app/google-services.json
           fi
+
           cat << 'EOF' > android/app/src/main/res/values/styles.xml
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -87,16 +113,52 @@ jobs:
                   <item name="colorAccent">#f35b04</item>
                   <item name="android:statusBarColor">#09172e</item>
                   <item name="android:navigationBarColor">#ffffff</item>
-                  <item name="android:windowBackground">#09172e</item>
+                  <item name="android:windowBackground">#f1f5f9</item>
+                  <item name="android:background">@null</item>
+              </style>
+              <style name="AppTheme.NoActionBar" parent="AppTheme">
+                  <item name="windowActionBar">false</item>
+                  <item name="windowNoTitle">true</item>
+                  <item name="android:background">@null</item>
               </style>
               <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-                  <item name="android:background">#09172e</item>
                   <item name="android:windowBackground">#09172e</item>
                   <item name="windowSplashScreenBackground">#09172e</item>
-                  <item name="postSplashScreenTheme">@style/AppTheme</item>
+                  <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
               </style>
           </resources>
           EOF
+
+          cat << 'EOF' > patch-android.js
+          const fs = require("fs");
+          const colorsPath = "android/app/src/main/res/values/colors.xml";
+          let colors = fs.existsSync(colorsPath)
+            ? fs.readFileSync(colorsPath, "utf8")
+            : '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>';
+          if (!colors.includes("qd_notif_color")) {
+            colors = colors.replace("</resources>", '    <color name="qd_notif_color">#f35b04</color>\n</resources>');
+            fs.writeFileSync(colorsPath, colors);
+          }
+
+          const manifestPath = "android/app/src/main/AndroidManifest.xml";
+          let manifest = fs.readFileSync(manifestPath, "utf8");
+          if (!manifest.includes("default_notification_icon")) {
+            const meta = [
+              '        <meta-data',
+              '            android:name="com.google.firebase.messaging.default_notification_icon"',
+              '            android:resource="@drawable/ic_stat_qd" />',
+              '        <meta-data',
+              '            android:name="com.google.firebase.messaging.default_notification_color"',
+              '            android:resource="@color/qd_notif_color" />',
+              '        <meta-data',
+              '            android:name="com.google.firebase.messaging.default_notification_channel_id"',
+              '            android:value="vagas_channel" />'
+            ].join("\n");
+            manifest = manifest.replace("</application>", meta + "\n    </application>");
+            fs.writeFileSync(manifestPath, manifest);
+          }
+          EOF
+          node patch-android.js
           npx cap sync android
 
       - name: Configurar assinatura oficial (Release)
