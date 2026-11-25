@@ -182,12 +182,18 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      flex-wrap: wrap;
+      row-gap: 8px;
+      column-gap: 8px;
     }
     .brand-row {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
+      max-width: 100%;
+    }
+    .brand-row > div {
       min-width: 0;
     }
     .brand-icon {
@@ -200,6 +206,8 @@
       font-weight: 900;
       letter-spacing: -0.3px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .brand-name span { color: var(--accent); }
     .admin-pill {
@@ -220,21 +228,25 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      margin-left: auto;
+      max-width: 100%;
+      min-width: 0;
     }
     .city-pill-btn {
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.18);
       color: #fff;
-      padding: 7px 11px;
+      padding: 6px 10px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       cursor: pointer;
-      max-width: 158px;
+      max-width: min(148px, 60vw);
+      min-width: 0;
     }
     .city-pill-btn .city-txt {
       overflow: hidden;
@@ -1090,8 +1102,45 @@
       margin-top: 3px;
       line-height: 1.35;
     }
+    .neg-person-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .neg-person-row:active {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .neg-person-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .neg-view-link {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--navy);
+      background: #e0e7ff;
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
     .neg-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-top: 10px;
     }
@@ -2604,35 +2653,128 @@
       input.click();
     }
 
-    function compressImageToAvatar(file) {
+    function readFileAsDataURL(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = () => reject(new Error("Erro ao ler imagem"));
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onerror = () => reject(new Error("Imagem inválida"));
-          img.onload = () => {
-            const size = 200;
-            const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-            const minSide = Math.min(img.width, img.height);
-            const sx = (img.width - minSide) / 2;
-            const sy = (img.height - minSide) / 2;
-            ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
-            resolve(canvas.toDataURL("image/jpeg", 0.72));
-          };
-          img.src = e.target.result;
-        };
+        reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
       });
+    }
+
+    function loadHtmlImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = async () => {
+          try {
+            if (typeof img.decode === "function") await img.decode();
+          } catch (e) {}
+          requestAnimationFrame(() => resolve(img));
+        };
+        img.onerror = () => reject(new Error("Imagem inválida"));
+        img.src = src;
+      });
+    }
+
+    function drawSourceToAvatarDataUrl(source, sw, sh, size = 200) {
+      if (!sw || !sh || sw <= 0 || sh <= 0) return null;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return null;
+
+      ctx.clearRect(0, 0, size, size);
+      const minSide = Math.min(sw, sh);
+      const sx = Math.floor((sw - minSide) / 2);
+      const sy = Math.floor((sh - minSide) / 2);
+      ctx.drawImage(source, sx, sy, minSide, minSide, 0, 0, size, size);
+
+      // Verifica se o Android/WebView desenhou pixels reais (evita salvar círculo preto vazio)
+      try {
+        const imgData = ctx.getImageData(0, 0, size, size).data;
+        let visibleCount = 0;
+        let nonBlackCount = 0;
+        for (let i = 0; i < imgData.length; i += 64) {
+          const r = imgData[i];
+          const g = imgData[i + 1];
+          const b = imgData[i + 2];
+          const a = imgData[i + 3];
+          if (a > 10) {
+            visibleCount++;
+            if (r > 5 || g > 5 || b > 5) nonBlackCount++;
+          }
+        }
+        if (visibleCount === 0 || nonBlackCount === 0) return null;
+      } catch (e) {}
+
+      // Fundo branco atrás de áreas transparentes antes de converter para JPEG
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+      ctx.globalCompositeOperation = "source-over";
+
+      const jpg = canvas.toDataURL("image/jpeg", 0.78);
+      if (jpg && jpg.startsWith("data:image/") && jpg.length > 200) return jpg;
+
+      const png = canvas.toDataURL("image/png");
+      if (png && png.startsWith("data:image/") && png.length > 200) return png;
+      return null;
+    }
+
+    async function compressImageToAvatar(file) {
+      // Tentativa 1: createImageBitmap (nativo, evita limite de memória e respeita rotação EXIF no Android/Xiaomi)
+      if (typeof createImageBitmap === "function") {
+        try {
+          const bitmap = await createImageBitmap(file);
+          try {
+            const res = drawSourceToAvatarDataUrl(bitmap, bitmap.width, bitmap.height, 200);
+            if (res) return res;
+          } finally {
+            if (typeof bitmap.close === "function") bitmap.close();
+          }
+        } catch (e) {}
+      }
+
+      // Tentativa 2: ObjectURL + img.decode() (leve para fotos grandes de câmera)
+      if (typeof URL !== "undefined" && URL.createObjectURL) {
+        const objUrl = URL.createObjectURL(file);
+        try {
+          const img = await loadHtmlImage(objUrl);
+          const w = img.naturalWidth || img.width;
+          const h = img.naturalHeight || img.height;
+          const res = drawSourceToAvatarDataUrl(img, w, h, 200);
+          if (res) return res;
+        } catch (e) {
+        } finally {
+          try { URL.revokeObjectURL(objUrl); } catch (e) {}
+        }
+      }
+
+      // Tentativa 3: FileReader DataURL + img.decode()
+      const rawDataUrl = await readFileAsDataURL(file);
+      try {
+        const img = await loadHtmlImage(rawDataUrl);
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const res = drawSourceToAvatarDataUrl(img, w, h, 200);
+        if (res) return res;
+      } catch (e) {}
+
+      // Tentativa 4: Se o aparelho falhar no canvas mas a foto já for pequena (<= 350 KB), usa direto
+      if (rawDataUrl && rawDataUrl.startsWith("data:image/") && file.size <= 350 * 1024) {
+        return rawDataUrl;
+      }
+
+      throw new Error("Falha ao processar imagem");
     }
 
     async function handleProfilePhotoSelected(input) {
       const file = input.files && input.files[0];
       if (!file || !currentUser) return;
-      if (!file.type.startsWith("image/")) return showToast("Selecione uma imagem válida.", "error");
+      if (file.type && !file.type.startsWith("image/")) {
+        return showToast("Selecione uma imagem válida.", "error");
+      }
 
       try {
         showToast("Ajustando foto...");
@@ -2645,7 +2787,7 @@
           await savePhotoDirectly(compressed);
         }
       } catch (err) {
-        showToast("Não foi possível carregar essa imagem.", "error");
+        showToast("Não foi possível carregar essa foto. Tente outra imagem.", "error");
       }
     }
 
@@ -3698,12 +3840,30 @@
             <span>Confirmação de negociação (${list.length})</span>
           </div>
           ${list.map(n => {
+            const otherUid = getOtherUidFromNeg(n);
             const otherName = getOtherNameFromNeg(n);
+            const otherPhoto = getUserPhoto(otherUid);
+            const otherUser = allUsers.find(x => x.uid === otherUid);
+            const otherCity = (otherUser && otherUser.city) || "";
+            const stats = getUserRatingStats(otherUid);
+            const metaText = [
+              otherCity ? escapeHtml(otherCity) : "",
+              stats.count > 0 ? `★ ${stats.avg} (${stats.count})` : "Novo"
+            ].filter(Boolean).join(" • ");
             const jobTitle = n.jobTitle || "anúncio no app";
             return `
               <div class="neg-item">
-                <div class="neg-item-title">${escapeHtml(otherName)} entrou em contato</div>
-                <div class="neg-item-sub">Sobre: <strong>${escapeHtml(jobTitle)}</strong> — Vocês estão negociando ou fecharam serviço?</div>
+                <div class="neg-person-row" onclick="openPublicProfile('${escapeHtml(otherUid)}')">
+                  <div class="neg-person-left">
+                    <div class="avatar" style="width:34px; height:34px; font-size:12px;">${renderAvatarInner(otherName, otherPhoto)}</div>
+                    <div style="min-width:0;">
+                      <div class="neg-item-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(otherName)}</div>
+                      <div class="author-sub">${metaText}</div>
+                    </div>
+                  </div>
+                  <span class="neg-view-link">${SVG.user}<span>Ver perfil</span></span>
+                </div>
+                <div class="neg-item-sub">Entrou em contato sobre: <strong>${escapeHtml(jobTitle)}</strong> — Vocês estão negociando ou fecharam serviço?</div>
                 <div class="neg-actions">
                   <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="respondNegotiation('${escapeHtml(n.id)}', 'confirmed')">
                     ${SVG.check}<span>Sim, estamos negociando</span>
@@ -3779,10 +3939,28 @@
       if (pendingForMe.length > 0) {
         html += `<div style="font-size:12.5px; font-weight:800; color:#9a3412; margin-bottom:6px;">Para você confirmar (${pendingForMe.length})</div>`;
         html += pendingForMe.map(n => {
+          const otherUid = getOtherUidFromNeg(n);
           const otherName = getOtherNameFromNeg(n);
+          const otherPhoto = getUserPhoto(otherUid);
+          const otherUser = allUsers.find(x => x.uid === otherUid);
+          const otherCity = (otherUser && otherUser.city) || "";
+          const stats = getUserRatingStats(otherUid);
+          const metaText = [
+            otherCity ? escapeHtml(otherCity) : "",
+            stats.count > 0 ? `★ ${stats.avg} (${stats.count})` : "Novo"
+          ].filter(Boolean).join(" • ");
           return `
             <div class="neg-item" style="margin-bottom:8px;">
-              <div class="neg-item-title">${escapeHtml(otherName)}</div>
+              <div class="neg-person-row" onclick="closeModal('negotiationsModal', true); openPublicProfile('${escapeHtml(otherUid)}')">
+                <div class="neg-person-left">
+                  <div class="avatar" style="width:34px; height:34px; font-size:12px;">${renderAvatarInner(otherName, otherPhoto)}</div>
+                  <div style="min-width:0;">
+                    <div class="neg-item-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(otherName)}</div>
+                    <div class="author-sub">${metaText}</div>
+                  </div>
+                </div>
+                <span class="neg-view-link">${SVG.user}<span>Ver perfil</span></span>
+              </div>
               <div class="neg-item-sub">Entrou em contato sobre: <strong>${escapeHtml(n.jobTitle || "Serviço")}</strong></div>
               <div class="neg-actions">
                 <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="respondNegotiation('${escapeHtml(n.id)}', 'confirmed')">${SVG.check}<span>Sim, estamos negociando</span></button>
@@ -3801,11 +3979,11 @@
           const photo = getUserPhoto(otherUid);
           return `
             <div class="card" style="box-shadow:none; border:1px solid var(--border); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-              <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+              <div onclick="closeModal('negotiationsModal', true); openPublicProfile('${escapeHtml(otherUid)}')" style="display:flex; align-items:center; gap:9px; min-width:0; flex:1; cursor:pointer;">
                 <div class="avatar" style="width:34px; height:34px; font-size:12px;">${renderAvatarInner(otherName, photo)}</div>
                 <div style="min-width:0;">
                   <div style="font-size:13.5px; font-weight:800; color:var(--navy-deep); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(otherName)}</div>
-                  <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")}</div>
+                  <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")} • Ver perfil</div>
                 </div>
               </div>
               <button type="button" class="btn btn-accent btn-sm" onclick="closeModal('negotiationsModal', true); openReviewModal('${escapeHtml(otherUid)}')">${SVG.star}<span>Avaliar</span></button>
@@ -3816,15 +3994,23 @@
 
       if (pendingByMe.length > 0) {
         html += `<div style="font-size:12.5px; font-weight:800; color:var(--muted); margin:12px 0 6px;">Aguardando resposta (${pendingByMe.length})</div>`;
-        html += pendingByMe.map(n => `
-          <div class="card" style="box-shadow:none; border:1px solid var(--border); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <div style="min-width:0;">
-              <div style="font-size:13.5px; font-weight:700; color:var(--navy-deep);">${escapeHtml(getOtherNameFromNeg(n))}</div>
-              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")}</div>
+        html += pendingByMe.map(n => {
+          const otherUid = getOtherUidFromNeg(n);
+          const otherName = getOtherNameFromNeg(n);
+          const photo = getUserPhoto(otherUid);
+          return `
+            <div class="card" style="box-shadow:none; border:1px solid var(--border); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <div onclick="closeModal('negotiationsModal', true); openPublicProfile('${escapeHtml(otherUid)}')" style="display:flex; align-items:center; gap:9px; min-width:0; flex:1; cursor:pointer;">
+                <div class="avatar" style="width:32px; height:32px; font-size:11px;">${renderAvatarInner(otherName, photo)}</div>
+                <div style="min-width:0;">
+                  <div style="font-size:13.5px; font-weight:700; color:var(--navy-deep); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(otherName)}</div>
+                  <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")} • Ver perfil</div>
+                </div>
+              </div>
+              <span class="neg-status-pill neg-pill-pending">Pendente</span>
             </div>
-            <span class="neg-status-pill neg-pill-pending">Pendente</span>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       }
 
       box.innerHTML = html;
@@ -4593,12 +4779,14 @@
         }
         renderFeed();
         renderReviews();
+        renderNegotiationBanners();
       }, () => {});
 
       db.collection("avaliacoes").onSnapshot((snap) => {
         allReviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderFeed();
         renderReviews();
+        renderNegotiationBanners();
       }, () => {});
     }
 
