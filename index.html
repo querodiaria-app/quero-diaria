@@ -1051,6 +1051,80 @@
       color: #475569;
       line-height: 1.45;
     }
+
+    /* Negociações (Opção 2 - Confirmação com 1 toque) */
+    .neg-banner {
+      background: #fff7ed;
+      border: 1.5px solid #fdba74;
+      border-radius: 15px;
+      padding: 13px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 10px rgba(243, 91, 4, 0.08);
+    }
+    .neg-banner-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #9a3412;
+      margin-bottom: 8px;
+    }
+    .neg-item {
+      background: #ffffff;
+      border: 1px solid #fed7aa;
+      border-radius: 12px;
+      padding: 11px 12px;
+      margin-top: 8px;
+    }
+    .neg-item:first-of-type { margin-top: 0; }
+    .neg-item-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--navy-deep);
+      line-height: 1.35;
+    }
+    .neg-item-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+    .neg-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .neg-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+    }
+    .neg-pill-pending { background: #fef3c7; color: #92400e; }
+    .neg-pill-confirmed { background: #dcfce7; color: #15803d; }
+    .nav-ico-wrap { position: relative; }
+    .nav-badge-dot {
+      position: absolute;
+      top: -2px;
+      right: 4px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ffffff;
+    }
+    .nav-badge-dot.show { display: inline-flex; }
   </style>
 </head>
 <body>
@@ -1061,11 +1135,10 @@
   <!-- Splash Screen -->
   <div id="splashScreen">
     <svg class="splash-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <rect width="512" height="512" rx="110" fill="#09172e" />
-      <path fill="#ffffff" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
-      <line x1="196" y1="274" x2="254" y2="366" stroke="#09172e" stroke-width="58" stroke-linecap="round" />
-      <line x1="194" y1="272" x2="254" y2="366" stroke="#ffffff" stroke-width="44" stroke-linecap="round" />
-      <path fill="#f35b04" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
+      <rect width="512" height="512" rx="110" fill="#0a1f3a" />
+      <path fill="#ffffff" fill-rule="evenodd" d="M 183 132 H 184 A 84 84 0 0 1 268 216 V 274 A 84 84 0 0 1 184 358 H 183 A 84 84 0 0 1 99 274 V 216 A 84 84 0 0 1 183 132 Z M 184 164 A 50 50 0 0 1 234 214 V 276 A 50 50 0 0 1 184 326 A 50 50 0 0 1 134 276 V 214 A 50 50 0 0 1 184 164 Z" />
+      <line x1="194" y1="288" x2="256" y2="365" stroke="#ffffff" stroke-width="34" stroke-linecap="round" />
+      <path fill="#f35b04" fill-rule="evenodd" d="M 277 150 Q 277 136 291 136 H 324 C 378 136 411 174 411 239 C 411 304 378 342 324 342 H 291 Q 277 342 277 328 Z M 310 167 H 324 C 358 167 378 192 378 239 C 378 286 358 311 324 311 H 310 Z" />
     </svg>
     <div class="splash-title">QUERO <span>DIÁRIA</span></div>
     <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
@@ -1080,10 +1153,9 @@
       <div class="brand-row">
         <svg class="brand-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
           <rect width="512" height="512" rx="110" fill="#0f294d" />
-          <path fill="#ffffff" fill-rule="evenodd" d="M 176 136 C 232 136 270 182 270 246 C 270 310 232 356 176 356 C 120 356 82 310 82 246 C 82 182 120 136 176 136 Z M 176 182 C 144 182 126 208 126 246 C 126 284 144 310 176 310 C 208 310 226 284 226 246 C 226 208 208 182 176 182 Z" />
-          <line x1="196" y1="274" x2="254" y2="366" stroke="#0f294d" stroke-width="58" stroke-linecap="round" />
-          <line x1="194" y1="272" x2="254" y2="366" stroke="#ffffff" stroke-width="44" stroke-linecap="round" />
-          <path fill="#f35b04" fill-rule="evenodd" d="M 278 164 C 278 146 290 136 308 136 H 344 C 402 136 440 180 440 246 C 440 312 402 356 344 356 H 308 C 290 356 278 346 278 328 Z M 322 182 V 310 H 344 C 378 310 396 286 396 246 C 396 206 378 182 344 182 Z" />
+          <path fill="#ffffff" fill-rule="evenodd" d="M 183 132 H 184 A 84 84 0 0 1 268 216 V 274 A 84 84 0 0 1 184 358 H 183 A 84 84 0 0 1 99 274 V 216 A 84 84 0 0 1 183 132 Z M 184 164 A 50 50 0 0 1 234 214 V 276 A 50 50 0 0 1 184 326 A 50 50 0 0 1 134 276 V 214 A 50 50 0 0 1 184 164 Z" />
+          <line x1="194" y1="288" x2="256" y2="365" stroke="#ffffff" stroke-width="34" stroke-linecap="round" />
+          <path fill="#f35b04" fill-rule="evenodd" d="M 277 150 Q 277 136 291 136 H 324 C 378 136 411 174 411 239 C 411 304 378 342 324 342 H 291 Q 277 342 277 328 Z M 310 167 H 324 C 358 167 378 192 378 239 C 378 286 358 311 324 311 H 310 Z" />
         </svg>
         <div>
           <div class="brand-name">Quero <span>Diária</span></div>
@@ -1117,6 +1189,7 @@
 
     <!-- ABA 1: INÍCIO -->
     <section id="sec-inicio" class="section active">
+      <div id="homeNegotiationsBanner" style="display:none;"></div>
       <div class="mode-tabs">
         <button class="mode-tab active" id="tabFeedVagas" onclick="setFeedMode('vaga')">
           <svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
@@ -1217,6 +1290,8 @@
         </button>
       </div>
 
+      <div id="reviewsNegotiationsBanner" style="display:none;"></div>
+
       <div class="search-box">
         <svg class="ico search-ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="reviewSearchInput" placeholder="Buscar pessoa ou estabelecimento..." oninput="renderReviews()" />
@@ -1258,6 +1333,15 @@
           <span class="menu-left">
             <svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             Minhas Publicações
+          </span>
+          <svg class="ico ico-sm" style="color:#94a3b8;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <button class="menu-btn" onclick="openNegotiationsModal()">
+          <span class="menu-left">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            Minhas Negociações
+            <span class="tab-count" id="profileNegPendingBadge" style="display:none; background:var(--accent); color:#fff;">0</span>
           </span>
           <svg class="ico ico-sm" style="color:#94a3b8;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
@@ -1342,6 +1426,7 @@
     <button class="nav-btn" id="nav-avaliacoes" onclick="switchTab('avaliacoes')">
       <span class="nav-ico-wrap">
         <svg class="ico" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-badge-dot" id="navAvaliacoesBadge">0</span>
       </span>
       <span>Avaliações</span>
     </button>
@@ -1686,6 +1771,25 @@
         </button>
       </div>
       <div id="myPostsList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: MINHAS NEGOCIAÇÕES -->
+  <div class="modal-overlay" id="negotiationsModal">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <h3>
+          <svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Minhas Negociações
+        </h3>
+        <button class="close-x" onclick="closeModal('negotiationsModal')">
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p style="font-size:12.5px; color:var(--muted); margin-bottom:12px;">
+        As avaliações só ficam liberadas depois que vocês confirmam a negociação aqui com 1 toque.
+      </p>
+      <div id="negotiationsModalList"></div>
     </div>
   </div>
 
@@ -2192,7 +2296,11 @@
     let allUsers = [];
     let allReviews = [];
     let allReports = [];
+    let allNegotiations = [];
     let unsubscribeReports = null;
+    let unsubscribeNegotiations = null;
+    let viewingProfileUid = null;
+    let suppressNextPopstate = false;
 
     let activeTab = "inicio";
     let feedMode = "vaga";
@@ -2580,15 +2688,21 @@
     function openModal(id) {
       const el = document.getElementById(id);
       if (!el) return;
+      const alreadyOpen = el.classList.contains("open");
       el.classList.add("open");
-      try { history.pushState({ modal: id }, ""); } catch (e) {}
+      if (!alreadyOpen) {
+        try { history.pushState({ modal: id }, ""); } catch (e) {}
+      }
     }
 
     function closeModal(id, fromHistory = false) {
       const el = document.getElementById(id);
       if (el) el.classList.remove("open");
+      if (id === "viewProfileModal") viewingProfileUid = null;
       if (!fromHistory && window.history.state && window.history.state.modal === id) {
-        try { history.back(); } catch (e) {}
+        suppressNextPopstate = true;
+        setTimeout(() => { suppressNextPopstate = false; }, 200);
+        try { history.back(); } catch (e) { suppressNextPopstate = false; }
       }
     }
 
@@ -2662,9 +2776,15 @@
       } catch (e) {}
 
       window.addEventListener("popstate", () => {
+        if (suppressNextPopstate) {
+          suppressNextPopstate = false;
+          return;
+        }
         const openModals = getOpenModalIds();
         if (openModals.length > 0) {
-          document.getElementById(openModals[openModals.length - 1]).classList.remove("open");
+          const topId = openModals[openModals.length - 1];
+          document.getElementById(topId).classList.remove("open");
+          if (topId === "viewProfileModal") viewingProfileUid = null;
           return;
         }
         if (activeTab !== "inicio") switchTab("inicio", true);
@@ -2937,8 +3057,11 @@
       currentUserPrivate = null;
       isAdminUser = false;
       if (unsubscribeReports) { unsubscribeReports(); unsubscribeReports = null; }
+      if (unsubscribeNegotiations) { unsubscribeNegotiations(); unsubscribeNegotiations = null; }
       allReports = [];
+      allNegotiations = [];
       document.getElementById("adminHeaderBadge").classList.remove("show");
+      renderNegotiationBanners();
       renderProfileTab();
       renderFeed();
       showToast("Você saiu da sua conta.");
@@ -2964,6 +3087,13 @@
           await db.collection("vagas").doc(doc.id).delete();
           try { await db.collection("contatos").doc(doc.id).delete(); } catch (e) {}
         }
+
+        try {
+          const userNegsSnap = await db.collection("negociacoes").where("participants", "array-contains", uid).get();
+          for (const ndoc of userNegsSnap.docs) {
+            await db.collection("negociacoes").doc(ndoc.id).delete();
+          }
+        } catch (e) {}
 
         if (currentUserPrivate && currentUserPrivate.cnpj) {
           try { await db.collection("cnpjs").doc(currentUserPrivate.cnpj).delete(); } catch (e) {}
@@ -3417,6 +3547,9 @@
         recents.unshift(pendingWhatsAppJob.authorUid);
         localStorage.setItem(recentKey, JSON.stringify(recents.slice(0, 20)));
 
+        // Registra solicitação de negociação (Opção 2) para liberar avaliação após confirmação com 1 toque
+        await registerNegotiationRequest(pendingWhatsAppJob);
+
         const msg = pendingWhatsAppJob.type === "profissional"
           ? `Olá ${pendingWhatsAppJob.authorName}! Vi seu perfil de ${pendingWhatsAppJob.title} em ${pendingWhatsAppJob.city} no app Quero Diária e gostaria de combinar um serviço.`
           : `Olá ${pendingWhatsAppJob.authorName}! Vi a vaga de ${pendingWhatsAppJob.title} em ${pendingWhatsAppJob.city} no app Quero Diária e tenho interesse!`;
@@ -3432,18 +3565,309 @@
     }
 
     // =========================================================
-    // 10. PERFIL PÚBLICO E AVALIAÇÕES
+    // 10. NEGOCIAÇÕES (OPÇÃO 2), PERFIL PÚBLICO E AVALIAÇÕES
     // =========================================================
-    function openPublicProfile(uid) {
+    function getPairId(uidA, uidB) {
+      return uidA < uidB ? `${uidA}_${uidB}` : `${uidB}_${uidA}`;
+    }
+
+    function getNegotiationWith(otherUid) {
+      if (!currentUser || !otherUid || otherUid === currentUser.uid) return null;
+      const negId = getPairId(currentUser.uid, otherUid);
+      return allNegotiations.find(n => n.id === negId) || null;
+    }
+
+    function hasConfirmedNegotiationWith(otherUid) {
+      const neg = getNegotiationWith(otherUid);
+      return Boolean(neg && neg.status === "confirmed");
+    }
+
+    function getOtherUidFromNeg(neg) {
+      if (!currentUser || !neg) return "";
+      if (neg.requesterUid === currentUser.uid) return neg.targetUid;
+      if (neg.targetUid === currentUser.uid) return neg.requesterUid;
+      const list = Array.isArray(neg.participants) ? neg.participants : [];
+      return list.find(id => id !== currentUser.uid) || "";
+    }
+
+    function getOtherNameFromNeg(neg) {
+      if (!currentUser || !neg) return "Usuário";
+      const otherUid = getOtherUidFromNeg(neg);
+      const u = allUsers.find(x => x.uid === otherUid);
+      if (u && u.name) return u.name;
+      return neg.requesterUid === currentUser.uid
+        ? (neg.targetName || "Usuário")
+        : (neg.requesterName || "Usuário");
+    }
+
+    async function registerNegotiationRequest(job) {
+      if (!currentUser || !job || !job.authorUid || job.authorUid === currentUser.uid) return;
+      const targetUid = job.authorUid;
+      const negId = getPairId(currentUser.uid, targetUid);
+      const ref = db.collection("negociacoes").doc(negId);
+
+      try {
+        const snap = await ref.get();
+        const myName = (currentUserProfile && currentUserProfile.name) || currentUser.email.split("@")[0] || "Usuário";
+        const targetName = job.authorName || "Usuário";
+
+        if (!snap.exists) {
+          await ref.set({
+            requesterUid: currentUser.uid,
+            requesterName: myName,
+            targetUid: targetUid,
+            targetName: targetName,
+            participants: [currentUser.uid, targetUid].sort(),
+            jobId: job.id || "",
+            jobTitle: job.title || "Serviço",
+            status: "pending",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          const data = snap.data() || {};
+          if (data.status === "declined") {
+            await ref.update({
+              requesterUid: currentUser.uid,
+              requesterName: myName,
+              targetUid: targetUid,
+              targetName: targetName,
+              participants: Array.isArray(data.participants) ? data.participants : [currentUser.uid, targetUid].sort(),
+              jobId: job.id || "",
+              jobTitle: job.title || "Serviço",
+              status: "pending",
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function respondNegotiation(negId, decision) {
+      if (!currentUser || !negId) return;
+      try {
+        const updateData = {
+          status: decision,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (decision === "confirmed") {
+          updateData.confirmedAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+        await db.collection("negociacoes").doc(negId).update(updateData);
+        if (decision === "confirmed") {
+          showToast("Negociação confirmada! Agora vocês dois podem se avaliar.", "success");
+        } else {
+          showToast("Solicitação recusada.");
+        }
+      } catch (e) {
+        showToast("Não foi possível atualizar. Confira as regras do Firestore.", "error");
+      }
+    }
+
+    function renderNegotiationBanners() {
+      const homeBox = document.getElementById("homeNegotiationsBanner");
+      const revBox = document.getElementById("reviewsNegotiationsBanner");
+      const navBadge = document.getElementById("navAvaliacoesBadge");
+      const profBadge = document.getElementById("profileNegPendingBadge");
+
+      if (!currentUser) {
+        if (homeBox) { homeBox.style.display = "none"; homeBox.innerHTML = ""; }
+        if (revBox) { revBox.style.display = "none"; revBox.innerHTML = ""; }
+        if (navBadge) navBadge.classList.remove("show");
+        if (profBadge) profBadge.style.display = "none";
+        return;
+      }
+
+      const pendingForMe = allNegotiations.filter(n => n.status === "pending" && n.targetUid === currentUser.uid);
+      const pendingByMe = allNegotiations.filter(n => n.status === "pending" && n.requesterUid === currentUser.uid);
+      const countPending = pendingForMe.length;
+
+      if (navBadge) {
+        navBadge.textContent = countPending > 9 ? "9+" : String(countPending);
+        navBadge.classList.toggle("show", countPending > 0);
+      }
+      if (profBadge) {
+        profBadge.textContent = String(countPending);
+        profBadge.style.display = countPending > 0 ? "inline-block" : "none";
+      }
+
+      const buildPendingCard = (list) => `
+        <div class="neg-banner">
+          <div class="neg-banner-head">
+            ${SVG.wa}
+            <span>Confirmação de negociação (${list.length})</span>
+          </div>
+          ${list.map(n => {
+            const otherName = getOtherNameFromNeg(n);
+            const jobTitle = n.jobTitle || "anúncio no app";
+            return `
+              <div class="neg-item">
+                <div class="neg-item-title">${escapeHtml(otherName)} entrou em contato</div>
+                <div class="neg-item-sub">Sobre: <strong>${escapeHtml(jobTitle)}</strong> — Vocês estão negociando ou fecharam serviço?</div>
+                <div class="neg-actions">
+                  <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="respondNegotiation('${escapeHtml(n.id)}', 'confirmed')">
+                    ${SVG.check}<span>Sim, estamos negociando</span>
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="respondNegotiation('${escapeHtml(n.id)}', 'declined')">Não</button>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+      if (homeBox) {
+        if (countPending > 0) {
+          homeBox.innerHTML = buildPendingCard(pendingForMe);
+          homeBox.style.display = "block";
+        } else {
+          homeBox.innerHTML = "";
+          homeBox.style.display = "none";
+        }
+      }
+
+      if (revBox) {
+        let revHtml = "";
+        if (countPending > 0) {
+          revHtml += buildPendingCard(pendingForMe);
+        }
+        if (pendingByMe.length > 0) {
+          revHtml += `
+            <div class="security-note" style="flex-direction:column; gap:4px;">
+              <div style="font-weight:800;">Aguardando confirmação (${pendingByMe.length})</div>
+              <div style="font-size:12px;">
+                ${pendingByMe.map(n => `• ${escapeHtml(getOtherNameFromNeg(n))} (${escapeHtml(n.jobTitle || "Serviço")})`).join("<br>")}
+              </div>
+            </div>
+          `;
+        }
+        if (revHtml) {
+          revBox.innerHTML = revHtml;
+          revBox.style.display = "block";
+        } else {
+          revBox.innerHTML = "";
+          revBox.style.display = "none";
+        }
+      }
+    }
+
+    function openNegotiationsModal() {
+      if (!currentUser) return;
+      renderNegotiationsModal();
+      openModal("negotiationsModal");
+    }
+
+    function renderNegotiationsModal() {
+      const box = document.getElementById("negotiationsModalList");
+      if (!box || !currentUser) return;
+
+      const pendingForMe = allNegotiations.filter(n => n.status === "pending" && n.targetUid === currentUser.uid);
+      const confirmed = allNegotiations.filter(n => n.status === "confirmed");
+      const pendingByMe = allNegotiations.filter(n => n.status === "pending" && n.requesterUid === currentUser.uid);
+
+      if (pendingForMe.length === 0 && confirmed.length === 0 && pendingByMe.length === 0) {
+        box.innerHTML = `
+          <div class="empty-state" style="padding:24px 10px;">
+            <div style="font-weight:700; color:var(--navy-deep); margin-bottom:4px;">Nenhuma negociação registrada ainda</div>
+            <div style="font-size:12.5px;">Quando você chamar alguém no WhatsApp pelo aplicativo (ou alguém chamar você), a confirmação aparecerá aqui.</div>
+          </div>`;
+        return;
+      }
+
+      let html = "";
+
+      if (pendingForMe.length > 0) {
+        html += `<div style="font-size:12.5px; font-weight:800; color:#9a3412; margin-bottom:6px;">Para você confirmar (${pendingForMe.length})</div>`;
+        html += pendingForMe.map(n => {
+          const otherName = getOtherNameFromNeg(n);
+          return `
+            <div class="neg-item" style="margin-bottom:8px;">
+              <div class="neg-item-title">${escapeHtml(otherName)}</div>
+              <div class="neg-item-sub">Entrou em contato sobre: <strong>${escapeHtml(n.jobTitle || "Serviço")}</strong></div>
+              <div class="neg-actions">
+                <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="respondNegotiation('${escapeHtml(n.id)}', 'confirmed')">${SVG.check}<span>Sim, estamos negociando</span></button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="respondNegotiation('${escapeHtml(n.id)}', 'declined')">Não</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      if (confirmed.length > 0) {
+        html += `<div style="font-size:12.5px; font-weight:800; color:#15803d; margin:12px 0 6px;">Negociações confirmadas (${confirmed.length})</div>`;
+        html += confirmed.map(n => {
+          const otherUid = getOtherUidFromNeg(n);
+          const otherName = getOtherNameFromNeg(n);
+          const photo = getUserPhoto(otherUid);
+          return `
+            <div class="card" style="box-shadow:none; border:1px solid var(--border); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+                <div class="avatar" style="width:34px; height:34px; font-size:12px;">${renderAvatarInner(otherName, photo)}</div>
+                <div style="min-width:0;">
+                  <div style="font-size:13.5px; font-weight:800; color:var(--navy-deep); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(otherName)}</div>
+                  <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")}</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-accent btn-sm" onclick="closeModal('negotiationsModal', true); openReviewModal('${escapeHtml(otherUid)}')">${SVG.star}<span>Avaliar</span></button>
+            </div>
+          `;
+        }).join("");
+      }
+
+      if (pendingByMe.length > 0) {
+        html += `<div style="font-size:12.5px; font-weight:800; color:var(--muted); margin:12px 0 6px;">Aguardando resposta (${pendingByMe.length})</div>`;
+        html += pendingByMe.map(n => `
+          <div class="card" style="box-shadow:none; border:1px solid var(--border); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <div style="min-width:0;">
+              <div style="font-size:13.5px; font-weight:700; color:var(--navy-deep);">${escapeHtml(getOtherNameFromNeg(n))}</div>
+              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(n.jobTitle || "Serviço")}</div>
+            </div>
+            <span class="neg-status-pill neg-pill-pending">Pendente</span>
+          </div>
+        `).join("");
+      }
+
+      box.innerHTML = html;
+    }
+
+    function renderPublicProfileContent(uid) {
       const user = allUsers.find(u => u.uid === uid);
       const stats = getUserRatingStats(uid);
       const revs = allReviews.filter(r => r.targetUid === uid);
       const isMe = currentUser && currentUser.uid === uid;
+      const neg = !isMe ? getNegotiationWith(uid) : null;
 
       const name = user ? user.name : "Usuário";
       const city = user ? user.city : "Região de Catanduva";
       const isEst = user && user.isEstablishment;
       const photoUrl = getUserPhoto(uid);
+
+      let rightActionHtml = "";
+      let negNoticeHtml = "";
+
+      if (!isMe && currentUser) {
+        if (neg && neg.status === "confirmed") {
+          rightActionHtml = `<button type="button" class="btn btn-accent btn-sm" onclick="closeModal('viewProfileModal', true); openReviewModal('${escapeHtml(uid)}')">${SVG.star}<span>Avaliar</span></button>`;
+        } else if (neg && neg.status === "pending" && neg.targetUid === currentUser.uid) {
+          rightActionHtml = `<span class="neg-status-pill neg-pill-pending">Confirmar abaixo</span>`;
+          negNoticeHtml = `
+            <div class="neg-banner" style="margin-bottom:14px;">
+              <div class="neg-banner-head">${SVG.wa}<span>${escapeHtml(name)} entrou em contato</span></div>
+              <div class="neg-item-sub" style="margin-bottom:10px;">Sobre: <strong>${escapeHtml(neg.jobTitle || "Serviço")}</strong>. Vocês estão negociando?</div>
+              <div class="neg-actions" style="margin-top:0;">
+                <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="respondNegotiation('${escapeHtml(neg.id)}', 'confirmed')">${SVG.check}<span>Sim, estamos negociando</span></button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="respondNegotiation('${escapeHtml(neg.id)}', 'declined')">Não</button>
+              </div>
+            </div>`;
+        } else if (neg && neg.status === "pending" && neg.requesterUid === currentUser.uid) {
+          rightActionHtml = `<span class="neg-status-pill neg-pill-pending">Aguardando confirmação</span>`;
+        } else {
+          negNoticeHtml = `
+            <div class="helper-text" style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:9px 11px; margin-bottom:14px;">
+              A avaliação só é liberada após vocês entrarem em contato pelo WhatsApp e confirmarem a negociação no app.
+            </div>`;
+        }
+      }
 
       let html = `
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
@@ -3456,15 +3880,16 @@
             ${isEst ? `<div style="margin-top:5px;"><span class="badge badge-est">${SVG.building}<span>${escapeHtml(user.establishmentType || "Estabelecimento")}${user.cnpjVerified ? " • CNPJ Verificado" : ""}</span></span></div>` : ""}
           </div>
         </div>
-        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:11px 13px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:11px 13px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
           <div>
             <div style="font-size:12px; color:var(--muted);">Reputação</div>
             <div style="font-size:15.5px; font-weight:800; color:#b45309; display:inline-flex; align-items:center; gap:5px;">
               ${stats.count > 0 ? `${SVG.starFill}<span>${stats.avg} / 5.0 (${stats.count})</span>` : "Sem avaliações ainda"}
             </div>
           </div>
-          ${!isMe ? `<button class="btn btn-accent btn-sm" onclick="closeModal('viewProfileModal'); openReviewModal('${escapeHtml(uid)}')">${SVG.star}<span>Avaliar</span></button>` : ""}
+          ${rightActionHtml}
         </div>
+        ${negNoticeHtml}
       `;
 
       if (revs.length > 0) {
@@ -3481,6 +3906,11 @@
       }
 
       document.getElementById("viewProfileContent").innerHTML = html;
+    }
+
+    function openPublicProfile(uid) {
+      viewingProfileUid = uid;
+      renderPublicProfileContent(uid);
       openModal("viewProfileModal");
     }
 
@@ -3488,6 +3918,11 @@
       if (!currentUser) {
         showToast("Faça login para enviar uma avaliação.");
         openAuthModal("login");
+        return;
+      }
+
+      if (preselectedUid && !hasConfirmedNegotiationWith(preselectedUid)) {
+        showToast("A avaliação só é liberada após confirmar a negociação entre vocês.", "error");
         return;
       }
 
@@ -3501,12 +3936,13 @@
 
       if (reviewTargetUid) {
         const target = allUsers.find(u => u.uid === reviewTargetUid);
+        const neg = getNegotiationWith(reviewTargetUid);
         document.getElementById("reviewTargetPickerArea").style.display = "none";
         document.getElementById("reviewTargetLocked").style.display = "block";
         document.getElementById("reviewTargetLocked").innerHTML = `
-          <div style="font-size:12px; color:var(--muted);">Avaliando:</div>
-          <div style="font-size:15px; font-weight:800; color:var(--navy-deep);">${escapeHtml(target ? target.name : "Usuário")}</div>
-          <div style="font-size:12px; color:var(--muted);">${escapeHtml(target ? target.city : "")}</div>
+          <div style="font-size:12px; color:var(--muted);">Avaliando negociação confirmada:</div>
+          <div style="font-size:15px; font-weight:800; color:var(--navy-deep);">${escapeHtml(target ? target.name : getOtherNameFromNeg(neg))}</div>
+          <div style="font-size:12px; color:var(--muted);">${escapeHtml(target ? target.city : "")}${neg && neg.jobTitle ? ` • ${escapeHtml(neg.jobTitle)}` : ""}</div>
         `;
       } else {
         document.getElementById("reviewTargetLocked").style.display = "none";
@@ -3520,36 +3956,50 @@
     function renderReviewCandidateList() {
       const box = document.getElementById("reviewCandidateList");
       const q = normalizeText(document.getElementById("reviewPickerSearch").value);
-      const recentKey = currentUser ? `qd_recent_contacts_${currentUser.uid}` : "";
-      const recents = recentKey ? JSON.parse(localStorage.getItem(recentKey) || "[]") : [];
+      const confirmedNegs = allNegotiations.filter(n => n.status === "confirmed");
 
-      const candidates = allUsers
+      const candidates = confirmedNegs
+        .map(n => {
+          const otherUid = getOtherUidFromNeg(n);
+          const u = allUsers.find(x => x.uid === otherUid);
+          return {
+            uid: otherUid,
+            name: (u && u.name) || getOtherNameFromNeg(n),
+            city: (u && u.city) || "SP",
+            photoURL: (u && u.photoURL) || "",
+            whatsappLast4: (u && u.whatsappLast4) || "",
+            suspended: Boolean(u && u.suspended),
+            jobTitle: n.jobTitle || "Serviço"
+          };
+        })
         .filter(u => {
-          if (currentUser && u.uid === currentUser.uid) return false;
+          if (!u.uid || (currentUser && u.uid === currentUser.uid)) return false;
           if (u.suspended) return false;
           if (!q) return true;
-          return normalizeText(`${u.name} ${u.city} ${u.whatsappLast4 || ""}`).includes(q);
-        })
-        .sort((a, b) => (recents.includes(b.uid) ? 1 : 0) - (recents.includes(a.uid) ? 1 : 0))
-        .slice(0, 25);
+          return normalizeText(`${u.name} ${u.city} ${u.jobTitle} ${u.whatsappLast4}`).includes(q);
+        });
 
       if (candidates.length === 0) {
-        box.innerHTML = `<div style="font-size:12.5px; color:var(--muted); padding:8px;">Nenhum usuário encontrado.</div>`;
+        box.innerHTML = `
+          <div style="font-size:12.5px; color:var(--muted); padding:10px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; line-height:1.45;">
+            ${confirmedNegs.length === 0
+              ? "<strong>Nenhuma negociação confirmada ainda.</strong><br>Você só pode avaliar pessoas com quem entrou em contato pelo WhatsApp e confirmou negociação no app."
+              : "Nenhuma pessoa encontrada com essa busca."}
+          </div>`;
         return;
       }
 
       box.innerHTML = candidates.map(u => {
         const isSel = reviewTargetUid === u.uid;
-        const isRecent = recents.includes(u.uid);
         return `
           <button type="button" onclick="selectReviewCandidate('${escapeHtml(u.uid)}')"
             style="text-align:left; padding:9px 11px; border-radius:10px; border:1.5px solid ${isSel ? "var(--navy)" : "var(--border)"}; background:${isSel ? "#eff6ff" : "#fff"}; cursor:pointer; display:flex; align-items:center; gap:9px;">
             <div class="avatar" style="width:30px; height:30px; font-size:11px;">${renderAvatarInner(u.name, u.photoURL)}</div>
             <div style="min-width:0;">
               <div style="font-size:13.5px; font-weight:800; color:var(--navy-deep);">
-                ${escapeHtml(u.name)} ${isRecent ? '<span style="font-size:10.5px; color:#15803d;">• Contatado recente</span>' : ""}
+                ${escapeHtml(u.name)} <span style="font-size:10.5px; color:#15803d;">• Confirmada</span>
               </div>
-              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(u.city || "SP")}${u.whatsappLast4 ? ` • Final ${escapeHtml(u.whatsappLast4)}` : ""}</div>
+              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(u.jobTitle)} • ${escapeHtml(u.city)}</div>
             </div>
           </button>`;
       }).join("");
@@ -3580,6 +4030,9 @@
       if (!currentUser || !currentUserProfile) return;
       if (!reviewTargetUid) return showToast("Escolha quem você quer avaliar.", "error");
       if (reviewTargetUid === currentUser.uid) return showToast("Você não pode avaliar a própria conta.", "error");
+      if (!hasConfirmedNegotiationWith(reviewTargetUid)) {
+        return showToast("A avaliação só é liberada após os dois confirmarem a negociação.", "error");
+      }
 
       const commentRaw = document.getElementById("reviewCommentInput").value.trim();
       const fullComment = [reviewSelectedTags.join(" • "), commentRaw].filter(Boolean).join(" — ");
@@ -4160,6 +4613,30 @@
       }, () => {});
     }
 
+    function startNegotiationsListener(uid) {
+      if (unsubscribeNegotiations) { unsubscribeNegotiations(); unsubscribeNegotiations = null; }
+      if (!uid) {
+        allNegotiations = [];
+        renderNegotiationBanners();
+        return;
+      }
+      unsubscribeNegotiations = db.collection("negociacoes")
+        .where("participants", "array-contains", uid)
+        .onSnapshot((snap) => {
+          allNegotiations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderNegotiationBanners();
+          if (document.getElementById("viewProfileModal").classList.contains("open") && viewingProfileUid) {
+            renderPublicProfileContent(viewingProfileUid);
+          }
+          if (document.getElementById("reviewModal").classList.contains("open") && !reviewTargetUid) {
+            renderReviewCandidateList();
+          }
+          if (document.getElementById("negotiationsModal").classList.contains("open")) {
+            renderNegotiationsModal();
+          }
+        }, () => {});
+    }
+
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
       authCheckedOnce = true;
@@ -4168,6 +4645,7 @@
         isAdminUser = ADMIN_EMAILS.includes(String(user.email || "").toLowerCase());
         document.getElementById("adminHeaderBadge").classList.toggle("show", isAdminUser);
         if (isAdminUser) startAdminReportsListener();
+        startNegotiationsListener(user.uid);
 
         try {
           const [pubSnap, privSnap] = await Promise.all([
@@ -4209,7 +4687,10 @@
         currentUserPrivate = null;
         isAdminUser = false;
         if (unsubscribeReports) { unsubscribeReports(); unsubscribeReports = null; }
+        if (unsubscribeNegotiations) { unsubscribeNegotiations(); unsubscribeNegotiations = null; }
         allReports = [];
+        allNegotiations = [];
+        renderNegotiationBanners();
         document.getElementById("adminHeaderBadge").classList.remove("show");
         maybePromptLoginAfterSplash();
       }
