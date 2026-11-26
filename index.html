@@ -1580,7 +1580,7 @@
 
         <div class="form-group">
           <label>E-mail *</label>
-          <input type="email" id="signupEmail" placeholder="Digite seu e-mail" autocomplete="email" />
+          <input type="email" id="signupEmail" placeholder="Digite seu e-mail" autocomplete="off" />
         </div>
 
         <div class="form-group">
@@ -2493,21 +2493,77 @@
       return escapeHtml((name || "U").trim().slice(0, 2).toUpperCase());
     }
 
-    function formatPhoneInput(input) {
-      let d = onlyDigits(input.value).slice(0, 11);
-      if (d.length > 6) input.value = `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
-      else if (d.length > 2) input.value = `(${d.slice(0,2)}) ${d.slice(2)}`;
-      else input.value = d;
+    function formatPhoneDigits(d) {
+      d = onlyDigits(d).slice(0, 11);
+      if (d.length === 0) return "";
+      if (d.length <= 2) return d;
+      if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+      if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+      return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
     }
 
-    function formatCnpjInput(input) {
-      let d = onlyDigits(input.value).slice(0, 14);
-      if (d.length > 12) input.value = `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`;
-      else if (d.length > 8) input.value = `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8)}`;
-      else if (d.length > 5) input.value = `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5)}`;
-      else if (d.length > 2) input.value = `${d.slice(0,2)}.${d.slice(2)}`;
-      else input.value = d;
-      document.getElementById("signupCnpjStatus").textContent = "";
+    function formatCnpjDigits(d) {
+      d = onlyDigits(d).slice(0, 14);
+      if (d.length === 0) return "";
+      if (d.length <= 2) return d;
+      if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+      if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+      if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+      return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+    }
+
+    function applyDigitMask(input, maxLen, formatter, preserveCursor = true) {
+      if (!input) return;
+      const rawVal = String(input.value || "");
+      const prevVal = String(input.dataset.prevMasked || "");
+      const hasSel = preserveCursor && typeof input.selectionStart === "number";
+      const curPos = hasSel ? input.selectionStart : rawVal.length;
+
+      let digits = onlyDigits(rawVal).slice(0, maxLen);
+      let digitsBeforeCursor = onlyDigits(rawVal.slice(0, curPos)).length;
+
+      // Ao apertar Apagar em cima de um símbolo (-, ., /, ), espaço),
+      // remove o dígito logo antes do símbolo para nunca travar o botão apagar.
+      if (preserveCursor && prevVal && rawVal.length < prevVal.length) {
+        const prevDigits = onlyDigits(prevVal).slice(0, maxLen);
+        if (digits === prevDigits && digits.length > 0) {
+          let diffIdx = 0;
+          while (diffIdx < rawVal.length && diffIdx < prevVal.length && rawVal[diffIdx] === prevVal[diffIdx]) {
+            diffIdx++;
+          }
+          const digitsBeforeDiff = onlyDigits(rawVal.slice(0, diffIdx)).length;
+          if (digitsBeforeDiff > 0) {
+            digits = digits.slice(0, digitsBeforeDiff - 1) + digits.slice(digitsBeforeDiff);
+            digitsBeforeCursor = digitsBeforeDiff - 1;
+          }
+        }
+      }
+
+      const formatted = formatter(digits);
+      input.value = formatted;
+      input.dataset.prevMasked = formatted;
+
+      if (hasSel && document.activeElement === input) {
+        let newPos = 0;
+        let seen = 0;
+        while (newPos < formatted.length && seen < digitsBeforeCursor) {
+          if (/\d/.test(formatted[newPos])) seen++;
+          newPos++;
+        }
+        try {
+          input.setSelectionRange(newPos, newPos);
+        } catch (e) {}
+      }
+    }
+
+    function formatPhoneInput(input, preserveCursor = true) {
+      applyDigitMask(input, 11, formatPhoneDigits, preserveCursor);
+    }
+
+    function formatCnpjInput(input, preserveCursor = true) {
+      applyDigitMask(input, 14, formatCnpjDigits, preserveCursor);
+      const statusEl = document.getElementById("signupCnpjStatus");
+      if (statusEl) statusEl.textContent = "";
     }
 
     function isValidCnpjMath(cnpj) {
@@ -2877,8 +2933,11 @@
 
       if (tab === "avaliacoes") renderReviews();
       if (tab === "perfil") renderProfileTab();
-      if (tab === "publicar" && !document.getElementById("editingJobId").value) {
-        prefillPublishCity();
+      if (tab === "publicar") {
+        syncPublishFormForAccount();
+        if (!document.getElementById("editingJobId").value) {
+          prefillPublishCity();
+        }
       }
 
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -3011,7 +3070,50 @@
         : '<svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     }
 
+    function resetPasswordInputVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      input.type = "password";
+      const btn = input.parentElement && input.parentElement.querySelector(".pass-eye-btn");
+      if (btn) {
+        btn.innerHTML = '<svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      }
+    }
+
+    function resetAuthForms() {
+      const fieldIds = [
+        "loginEmail", "loginPassword",
+        "signupName", "signupCnpj", "signupEstType", "signupEstNeighborhood",
+        "signupWhatsapp", "signupEmail", "signupPassword", "deleteConfirmPassword"
+      ];
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = "";
+          if (el.dataset) el.dataset.prevMasked = "";
+        }
+      });
+
+      const termsCheck = document.getElementById("signupTermsCheck");
+      if (termsCheck) termsCheck.checked = false;
+
+      const cnpjStatus = document.getElementById("signupCnpjStatus");
+      if (cnpjStatus) {
+        cnpjStatus.textContent = "";
+        cnpjStatus.className = "cnpj-status";
+      }
+
+      const citySel = document.getElementById("signupCity");
+      if (citySel && REGIONAL_CITIES.length > 0) citySel.value = REGIONAL_CITIES[0];
+
+      resetPasswordInputVisibility("loginPassword");
+      resetPasswordInputVisibility("signupPassword");
+      resetPasswordInputVisibility("deleteConfirmPassword");
+      setSignupAccountType("pessoa");
+    }
+
     function openAuthModal(mode = "login") {
+      resetAuthForms();
       setAuthMode(mode);
       openModal("authModal");
     }
@@ -3045,6 +3147,7 @@
       btn.textContent = "Entrando...";
       try {
         await auth.signInWithEmailAndPassword(email, pass);
+        resetAuthForms();
         closeModal("authModal");
         showToast("Bem-vindo(a) de volta!", "success");
       } catch (err) {
@@ -3173,6 +3276,8 @@
           currentUserProfile = publicProfile;
           currentUserPrivate = privateProfile;
 
+          resetAuthForms();
+          syncPublishFormForAccount();
           closeModal("authModal");
           showToast("Conta criada com sucesso!", "success");
           renderProfileTab();
@@ -3203,6 +3308,8 @@
       allReports = [];
       allNegotiations = [];
       document.getElementById("adminHeaderBadge").classList.remove("show");
+      resetAuthForms();
+      cancelEditJob(true);
       renderNegotiationBanners();
       renderProfileTab();
       renderFeed();
@@ -3245,7 +3352,8 @@
         await db.collection("usuarios").doc(uid).delete();
         await currentUser.delete();
 
-        document.getElementById("deleteConfirmPassword").value = "";
+        resetAuthForms();
+        cancelEditJob(true);
         closeModal("deleteAccountModal");
         showToast("Conta e dados excluídos permanentemente.", "success");
         switchTab("inicio");
@@ -3264,7 +3372,41 @@
     // =========================================================
     // 8. PUBLICAÇÃO, EDIÇÃO E DENÚNCIAS
     // =========================================================
+    function isEstablishmentAccount() {
+      return Boolean(currentUserProfile && currentUserProfile.isEstablishment);
+    }
+
+    function syncPublishFormForAccount() {
+      const editingId = document.getElementById("editingJobId").value.trim();
+      const tabsEl = document.getElementById("publishTypeTabs");
+      const headingEl = document.getElementById("publishHeading");
+      const subtitleEl = document.getElementById("publishSubtitle");
+      const isEst = isEstablishmentAccount();
+
+      if (editingId) {
+        if (tabsEl) tabsEl.style.display = "none";
+        if (headingEl) headingEl.textContent = "Editar Publicação";
+        if (subtitleEl) subtitleEl.textContent = "Atualize as informações do seu anúncio abaixo.";
+        return;
+      }
+
+      if (isEst) {
+        if (tabsEl) tabsEl.style.display = "none";
+        if (headingEl) headingEl.textContent = "Publicar Nova Vaga";
+        if (subtitleEl) subtitleEl.textContent = "Divulgue vagas e diárias do seu estabelecimento para a região.";
+        setPublishType("vaga");
+      } else {
+        if (tabsEl) tabsEl.style.display = "grid";
+        if (headingEl) headingEl.textContent = "Publicar Anúncio";
+        if (subtitleEl) subtitleEl.textContent = "Escolha se você quer contratar ou divulgar seu serviço.";
+      }
+    }
+
     function setPublishType(type) {
+      const editingId = document.getElementById("editingJobId").value.trim();
+      if (!editingId && isEstablishmentAccount() && type === "profissional") {
+        type = "vaga";
+      }
       publishType = type;
       const isVaga = type === "vaga";
       document.getElementById("pubTypeVaga").classList.toggle("active", isVaga);
@@ -3294,6 +3436,9 @@
       }
 
       const editingId = document.getElementById("editingJobId").value.trim();
+      if (!editingId && isEstablishmentAccount()) {
+        publishType = "vaga";
+      }
       const title = document.getElementById("jobTitle").value.trim();
       const payFormatted = formatMoneyField(document.getElementById("jobPay").value);
       const city = document.getElementById("jobCity").value;
@@ -3413,10 +3558,9 @@
 
     function cancelEditJob(silent = false) {
       document.getElementById("editingJobId").value = "";
-      document.getElementById("publishHeading").textContent = "Publicar Anúncio";
       document.getElementById("btnPublish").textContent = "Publicar Agora";
       document.getElementById("btnCancelEdit").style.display = "none";
-      document.getElementById("publishTypeTabs").style.display = "grid";
+      syncPublishFormForAccount();
 
       document.getElementById("jobTitle").value = "";
       document.getElementById("jobPay").value = "";
@@ -4381,8 +4525,10 @@
       if (!currentUserProfile || !currentUserPrivate) return;
       pendingEditPhotoData = null;
       document.getElementById("editNameInput").value = currentUserProfile.name || "";
-      document.getElementById("editPhoneInput").value = currentUserPrivate.whatsapp || "";
-      formatPhoneInput(document.getElementById("editPhoneInput"));
+      const editPhoneEl = document.getElementById("editPhoneInput");
+      editPhoneEl.dataset.prevMasked = "";
+      editPhoneEl.value = currentUserPrivate.whatsapp || "";
+      formatPhoneInput(editPhoneEl, false);
       const sel = document.getElementById("editCitySelect");
       sel.value = REGIONAL_CITIES.includes(currentUserProfile.city) ? currentUserProfile.city : REGIONAL_CITIES[0];
       updateEditPhotoPreview(currentUserProfile.photoURL || "");
@@ -4883,6 +5029,7 @@
         maybePromptLoginAfterSplash();
       }
 
+      syncPublishFormForAccount();
       renderProfileTab();
       renderFeed();
       renderReviews();
